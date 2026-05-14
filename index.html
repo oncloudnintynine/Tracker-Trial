@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Sea & Air Tracks Dashboard</title>
+    <title>Live Sea & Air Tracks</title>
     
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -16,98 +16,111 @@
 </head>
 <body>
     
-    <!-- Full Screen Map Container -->
+    <!-- Full Screen Map -->
     <div id="map"></div>
 
-    <!-- Professional Floating UI Panel -->
-    <div id="ui-panel" class="ui-panel">
-        <div class="panel-header">
-            <div class="title-row">
-                <div class="logo-dot"></div>
-                <h2>Live Tracker</h2>
-            </div>
-            <p>Real-time Air & Sea Traffic Intelligence</p>
-        </div>
-
-        <!-- Map View Controls -->
-        <div class="control-group">
-            <label for="map-style-selector" class="group-label">Basemap Style</label>
-            <div class="select-wrapper">
-                <select id="map-style-selector" class="dropdown">
-                    <option value="dark">Dark</option>
-                    <option value="light">Light</option>
-                    <option value="street">Street</option>
-                    <option value="satellite">Satellite</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Air Traffic Controls -->
-        <div class="control-group">
-            <div class="group-header">
-                <div>
-                    <h3>Air Traffic</h3>
-                    <span class="sub-label">OpenSky Network</span>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toggle-air" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="stats-card">
-                <div class="status-indicator">
-                    <span class="status-dot" id="air-status-dot"></span>
-                    <span class="status-text" id="air-status-text">Connecting...</span>
-                </div>
-                <div class="count-badge">
-                    <span id="air-count">0</span> Active
-                </div>
-            </div>
-        </div>
-
-        <!-- Sea Traffic Controls -->
-        <div class="control-group">
-            <div class="group-header">
-                <div>
-                    <h3>Sea Traffic</h3>
-                    <span class="sub-label">AISStream WS</span>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toggle-sea" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            
-            <div class="input-row">
-                <input type="password" id="ais-key" placeholder="AISStream API Key">
-                <button id="btn-connect-ais" class="btn btn-primary" title="Connect">Connect</button>
-            </div>
-            
-            <div class="stats-card">
-                <div class="status-indicator">
-                    <span class="status-dot warning" id="sea-status-dot"></span>
-                    <span class="status-text" id="sea-status-text">Using Mock Data</span>
-                </div>
-                <div class="count-badge">
-                    <span id="sea-count">0</span> Active
-                </div>
-            </div>
-        </div>
-
-        <!-- Collapsible System Limitations -->
-        <details class="system-limits">
-            <summary>System Architecture & Limits</summary>
-            <div class="details-content">
-                <ul>
-                    <li><strong>Air:</strong> Limited to Singapore bounding box to prevent API rate limits (HTTP 429).</li>
-                    <li><strong>Sea:</strong> Real-time data requires an API key from <em>aisstream.io</em>. Defaults to mock data without key.</li>
-                    <li><strong>Security:</strong> Enforces HTTPS/WSS secure connections to prevent Mixed Content policies.</li>
-                </ul>
-            </div>
-        </details>
+    <!-- Top Left Brand HUD -->
+    <div class="brand-hud">
+        <div class="logo-dot"></div>
+        <h1>Live Tracker</h1>
     </div>
 
-    <!-- Floating Toast Notifications Container -->
+    <!-- Bottom Floating Dock -->
+    <div class="bottom-dock">
+        <!-- Basemap Selector Button -->
+        <button id="btn-layers" class="dock-btn" title="Change Basemap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 12 2 23 6 12 10 1 6"></polygon><polyline points="1 11 12 15 23 11"></polyline><polyline points="1 16 12 20 23 16"></polyline></svg>
+        </button>
+
+        <div class="dock-divider"></div>
+
+        <!-- Air Toggle & Stats -->
+        <button id="btn-toggle-air" class="dock-btn active" title="Air Traffic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21.5 4c0 0-2 .5-3.5 2L14.5 9.5 6.3 7.7 4.5 9.5l6.5 3.5L8.5 15.5l-3.2-.8L3.5 16l3.5 2.5L9.5 22l1.3-1.8-.8-3.2 2.5-2.5 3.5 6.5 1.8-1.8z"></path></svg>
+            <span id="air-count" class="count-badge">0</span>
+            <span id="air-status-dot" class="status-dot warning"></span>
+        </button>
+
+        <!-- Sea Toggle & Stats -->
+        <button id="btn-toggle-sea" class="dock-btn active" title="Sea Traffic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M20 12v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"></path><path d="M10 12V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"></path><path d="M6 12V6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><path d="M12 2v3"></path></svg>
+            <span id="sea-count" class="count-badge">0</span>
+            <span id="sea-status-dot" class="status-dot warning"></span>
+        </button>
+
+        <div class="dock-divider"></div>
+
+        <!-- Settings Button -->
+        <button id="btn-settings" class="dock-btn" title="Configuration & API">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+    </div>
+
+    <!-- Layers Modal -->
+    <div id="modal-layers" class="modal-overlay">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h2>Map Style</h2>
+                <button class="close-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div class="modal-body">
+                <div class="layer-options">
+                    <button class="layer-option active" data-style="dark">Dark Mode</button>
+                    <button class="layer-option" data-style="light">Light Mode</button>
+                    <button class="layer-option" data-style="street">Street Map</button>
+                    <button class="layer-option" data-style="satellite">Satellite</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configuration</h2>
+                <button class="close-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div class="modal-body">
+                
+                <!-- Sea Connection -->
+                <div class="settings-section">
+                    <h3>AISStream Connection</h3>
+                    <p class="sub-text">Real-time sea data requires a free API key from <em>aisstream.io</em>. Without a key, the map gracefully degrades to mock data.</p>
+                    
+                    <div class="input-group">
+                        <input type="password" id="ais-key" placeholder="Enter API Key">
+                        <button id="btn-connect-ais" class="btn btn-primary">Connect</button>
+                    </div>
+                    
+                    <div class="detailed-status">
+                        Sea Status: <span id="sea-status-text" class="status-warning">Using Mock Data</span>
+                    </div>
+                </div>
+
+                <!-- Air Status -->
+                <div class="settings-section">
+                    <h3>OpenSky Connection</h3>
+                    <div class="detailed-status">
+                        Air Status: <span id="air-status-text" class="status-warning">Fetching...</span>
+                    </div>
+                </div>
+
+                <!-- System Limits Info -->
+                <div class="settings-section no-border">
+                    <h3>System Architecture</h3>
+                    <ul class="info-list">
+                        <li><strong>Air Bounds:</strong> Hardcoded to Singapore region to prevent 429 Too Many Requests from OpenSky.</li>
+                        <li><strong>Security:</strong> All remote connections utilize WSS or HTTPS to comply with strict browser mixed-content policies.</li>
+                        <li><strong>Cleanup:</strong> Stale markers are automatically garbage-collected (60s for air, 5m for sea).</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notifications -->
     <div id="toast-container"></div>
 
     <!-- Leaflet JS -->
