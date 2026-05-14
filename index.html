@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Sea & Air Tracks Dashboard</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <link rel="stylesheet" href="style.css">
@@ -13,44 +19,59 @@
     <!-- Full Screen Map Container -->
     <div id="map"></div>
 
-    <!-- Floating UI Panel (Baked into map) -->
-    <div id="ui-panel" class="glass-panel">
+    <!-- Professional Floating UI Panel -->
+    <div id="ui-panel" class="ui-panel">
         <div class="panel-header">
-            <h2>Live Tracker</h2>
-            <p>Air & Sea Traffic</p>
+            <div class="title-row">
+                <div class="logo-dot"></div>
+                <h2>Live Tracker</h2>
+            </div>
+            <p>Real-time Air & Sea Traffic Intelligence</p>
         </div>
 
         <!-- Map View Controls -->
         <div class="control-group">
-            <h3>Map View</h3>
-            <select id="map-style-selector" class="dropdown">
-                <option value="dark">Dark Mode</option>
-                <option value="light">Light Mode</option>
-                <option value="street">Street Map</option>
-                <option value="satellite">Satellite (Esri)</option>
-            </select>
+            <label for="map-style-selector" class="group-label">Basemap Style</label>
+            <div class="select-wrapper">
+                <select id="map-style-selector" class="dropdown">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="street">Street</option>
+                    <option value="satellite">Satellite</option>
+                </select>
+            </div>
         </div>
 
         <!-- Air Traffic Controls -->
         <div class="control-group">
             <div class="group-header">
-                <h3>Air Traffic <span>(OpenSky)</span></h3>
+                <div>
+                    <h3>Air Traffic</h3>
+                    <span class="sub-label">OpenSky Network</span>
+                </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="toggle-air" checked>
                     <span class="slider"></span>
                 </label>
             </div>
-            <div class="stats-row">
-                <span class="status-indicator" id="air-status-dot"></span>
-                <span id="air-status-text">Connecting...</span>
-                <span class="count-badge"><span id="air-count">0</span> Active</span>
+            <div class="stats-card">
+                <div class="status-indicator">
+                    <span class="status-dot" id="air-status-dot"></span>
+                    <span class="status-text" id="air-status-text">Connecting...</span>
+                </div>
+                <div class="count-badge">
+                    <span id="air-count">0</span> Active
+                </div>
             </div>
         </div>
 
         <!-- Sea Traffic Controls -->
         <div class="control-group">
             <div class="group-header">
-                <h3>Sea Traffic <span>(AISStream)</span></h3>
+                <div>
+                    <h3>Sea Traffic</h3>
+                    <span class="sub-label">AISStream WS</span>
+                </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="toggle-sea" checked>
                     <span class="slider"></span>
@@ -58,25 +79,29 @@
             </div>
             
             <div class="input-row">
-                <input type="text" id="ais-key" placeholder="Enter AISStream API Key">
-                <button id="btn-connect-ais" class="btn" title="Connect">Connect</button>
+                <input type="password" id="ais-key" placeholder="AISStream API Key">
+                <button id="btn-connect-ais" class="btn btn-primary" title="Connect">Connect</button>
             </div>
             
-            <div class="stats-row">
-                <span class="status-indicator warning" id="sea-status-dot"></span>
-                <span id="sea-status-text">Using Mock Data</span>
-                <span class="count-badge"><span id="sea-count">0</span> Active</span>
+            <div class="stats-card">
+                <div class="status-indicator">
+                    <span class="status-dot warning" id="sea-status-dot"></span>
+                    <span class="status-text" id="sea-status-text">Using Mock Data</span>
+                </div>
+                <div class="count-badge">
+                    <span id="sea-count">0</span> Active
+                </div>
             </div>
         </div>
 
         <!-- Collapsible System Limitations -->
         <details class="system-limits">
-            <summary>System Limitations & Info</summary>
+            <summary>System Architecture & Limits</summary>
             <div class="details-content">
                 <ul>
                     <li><strong>Air:</strong> Limited to Singapore bounding box to prevent API rate limits (HTTP 429).</li>
-                    <li><strong>Sea:</strong> Real-time data requires an API key from <em>aisstream.io</em>. Defaults to mock data.</li>
-                    <li><strong>HTTPS:</strong> Requires secure connections (WSS) to avoid Mixed Content errors.</li>
+                    <li><strong>Sea:</strong> Real-time data requires an API key from <em>aisstream.io</em>. Defaults to mock data without key.</li>
+                    <li><strong>Security:</strong> Enforces HTTPS/WSS secure connections to prevent Mixed Content policies.</li>
                 </ul>
             </div>
         </details>
