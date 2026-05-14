@@ -8,6 +8,7 @@ const SINGAPORE_BOUNDS = {
 
 let map;
 let airLayer, seaLayer;
+let currentBaseMap;
 let airMarkers = {};
 let seaMarkers = {};
 let airUpdateInterval;
@@ -15,25 +16,58 @@ let aisWebSocket;
 let useMockSeaData = true;
 let mockSeaInterval;
 
+// Map Providers
+const baseMaps = {
+    dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }),
+    light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }),
+    street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }),
+    satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        maxZoom: 19
+    })
+};
+
 // SVGs for markers
 const SVG_AIRPLANE = `<svg viewBox="0 0 24 24" width="24" height="24" style="transform: rotate({heading}deg); drop-shadow(1px 1px 2px rgba(0,0,0,0.5));"><path fill="#4db8ff" stroke="#ffffff" stroke-width="1" d="M21,16V14L13,9V3.5C13,2.67 12.33,2 11.5,2C10.67,2 10,2.67 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z"/></svg>`;
 const SVG_SHIP = `<svg viewBox="0 0 24 24" width="20" height="20" style="transform: rotate({heading}deg); drop-shadow(1px 1px 2px rgba(0,0,0,0.5));"><path fill="#ff6b6b" stroke="#ffffff" stroke-width="1" d="M20,21C18.61,21 17.22,20.53 16.16,19.56C14.03,17.63 10.76,17.63 8.63,19.56C7.57,20.53 6.18,21 4.79,21H3V19C4.39,19 5.78,18.53 6.84,17.56C8.97,15.63 12.24,15.63 14.37,17.56C15.43,18.53 16.82,19 18.21,19H20V21M20,17H18.21C16.82,17 15.43,16.53 14.37,15.56C12.24,13.63 8.97,13.63 6.84,15.56C5.78,16.53 4.39,17 3,17H2V10L9,13V6H11V14L15,12V8H17V11L22,9V17H20Z"/></svg>`;
 
 // Initialize Map
 function initMap() {
-    map = L.map('map').setView([1.290270, 103.851959], 9); // Centered around Singapore
+    map = L.map('map', {
+        center: [1.290270, 103.851959], // Centered around Singapore
+        zoom: 9,
+        zoomControl: true
+    });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20
-    }).addTo(map);
+    // Default map style
+    currentBaseMap = baseMaps.dark;
+    currentBaseMap.addTo(map);
 
     airLayer = L.layerGroup().addTo(map);
     seaLayer = L.layerGroup().addTo(map);
 }
 
-// Map Controls Toggles
+// Control Event Listeners
+document.getElementById('map-style-selector').addEventListener('change', (e) => {
+    const selectedStyle = e.target.value;
+    if (baseMaps[selectedStyle]) {
+        map.removeLayer(currentBaseMap);
+        currentBaseMap = baseMaps[selectedStyle];
+        currentBaseMap.addTo(map);
+    }
+});
+
 document.getElementById('toggle-air').addEventListener('change', (e) => {
     if(e.target.checked) map.addLayer(airLayer);
     else map.removeLayer(airLayer);
