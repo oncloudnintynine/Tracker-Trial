@@ -16,7 +16,7 @@ let aisWebSocket;
 let useMockSeaData = true;
 let mockSeaInterval;
 
-// Map Providers with Retina Detection for sharper modern visuals
+// Map Providers with Retina Detection for crisp enterprise rendering
 const baseMaps = {
     dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
@@ -42,29 +42,34 @@ const baseMaps = {
     })
 };
 
-// SVGs for markers
-const SVG_AIRPLANE = `<svg viewBox="0 0 24 24" width="24" height="24" style="transform: rotate({heading}deg); drop-shadow(0px 2px 4px rgba(0,0,0,0.6));"><path fill="#4db8ff" stroke="#ffffff" stroke-width="1.5" d="M21,16V14L13,9V3.5C13,2.67 12.33,2 11.5,2C10.67,2 10,2.67 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z"/></svg>`;
-const SVG_SHIP = `<svg viewBox="0 0 24 24" width="20" height="20" style="transform: rotate({heading}deg); drop-shadow(0px 2px 4px rgba(0,0,0,0.6));"><path fill="#ff6b6b" stroke="#ffffff" stroke-width="1.5" d="M20,21C18.61,21 17.22,20.53 16.16,19.56C14.03,17.63 10.76,17.63 8.63,19.56C7.57,20.53 6.18,21 4.79,21H3V19C4.39,19 5.78,18.53 6.84,17.56C8.97,15.63 12.24,15.63 14.37,17.56C15.43,18.53 16.82,19 18.21,19H20V21M20,17H18.21C16.82,17 15.43,16.53 14.37,15.56C12.24,13.63 8.97,13.63 6.84,15.56C5.78,16.53 4.39,17 3,17H2V10L9,13V6H11V14L15,12V8H17V11L22,9V17H20Z"/></svg>`;
+// Polished SVGs for markers (sharper, cleaner vectors)
+const SVG_AIRPLANE = `<svg viewBox="0 0 24 24" width="22" height="22" style="transform: rotate({heading}deg); drop-shadow(0px 2px 3px rgba(0,0,0,0.5));"><path fill="#3b82f6" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" d="M21,16V14L13,9V3.5C13,2.67 12.33,2 11.5,2C10.67,2 10,2.67 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z"/></svg>`;
+const SVG_SHIP = `<svg viewBox="0 0 24 24" width="20" height="20" style="transform: rotate({heading}deg); drop-shadow(0px 2px 3px rgba(0,0,0,0.5));"><path fill="#f59e0b" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" d="M20,21C18.61,21 17.22,20.53 16.16,19.56C14.03,17.63 10.76,17.63 8.63,19.56C7.57,20.53 6.18,21 4.79,21H3V19C4.39,19 5.78,18.53 6.84,17.56C8.97,15.63 12.24,15.63 14.37,17.56C15.43,18.53 16.82,19 18.21,19H20V21M20,17H18.21C16.82,17 15.43,16.53 14.37,15.56C12.24,13.63 8.97,13.63 6.84,15.56C5.78,16.53 4.39,17 3,17H2V10L9,13V6H11V14L15,12V8H17V11L22,9V17H20Z"/></svg>`;
 
 // Toast Notification System
-function showToast(message, type = "info", duration = 3000) {
+function showToast(message, type = "info", duration = 3500) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
-    // Add icon based on type
-    let icon = "ℹ️";
-    if(type === "success") icon = "✅";
-    if(type === "error") icon = "⚠️";
+    // Minimalist SVG icons
+    let iconHTML = '';
+    if(type === "success") {
+        iconHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    } else if(type === "error") {
+        iconHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+    } else {
+        iconHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    }
     
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span style="display:flex;align-items:center;">${iconHTML}</span> <span>${message}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
-        toast.style.animation = "fadeOut 0.4s ease-in forwards";
+        toast.style.animation = "fadeOutRight 0.3s forwards";
         setTimeout(() => {
             if(container.contains(toast)) container.removeChild(toast);
-        }, 400);
+        }, 300);
     }, duration);
 }
 
@@ -72,11 +77,11 @@ function showToast(message, type = "info", duration = 3000) {
 function initMap() {
     map = L.map('map', {
         center: [1.290270, 103.851959], // Centered around Singapore
-        zoom: 9,
-        zoomControl: false // Disable default to move it
+        zoom: 10,
+        zoomControl: false // Custom placement
     });
 
-    // Move zoom control to bottom right so it doesn't overlap UI panel
+    // Move zoom control to bottom right
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     // Load saved preference or default
@@ -103,18 +108,25 @@ document.getElementById('map-style-selector').addEventListener('change', (e) => 
         currentBaseMap = baseMaps[selectedStyle];
         currentBaseMap.addTo(map);
         localStorage.setItem('preferredBaseMap', selectedStyle);
-        showToast(`Map style changed to ${e.target.options[e.target.selectedIndex].text}`, "info", 2000);
     }
 });
 
 document.getElementById('toggle-air').addEventListener('change', (e) => {
-    if(e.target.checked) map.addLayer(airLayer);
-    else map.removeLayer(airLayer);
+    if(e.target.checked) {
+        map.addLayer(airLayer);
+        showToast("Air tracking visible.", "info", 2000);
+    } else {
+        map.removeLayer(airLayer);
+    }
 });
 
 document.getElementById('toggle-sea').addEventListener('change', (e) => {
-    if(e.target.checked) map.addLayer(seaLayer);
-    else map.removeLayer(seaLayer);
+    if(e.target.checked) {
+        map.addLayer(seaLayer);
+        showToast("Sea tracking visible.", "info", 2000);
+    } else {
+        map.removeLayer(seaLayer);
+    }
 });
 
 // Create/Update Marker Helper
@@ -179,7 +191,7 @@ function updateStatusUI(type, text, state) {
     const txt = document.getElementById(`${type}-status-text`);
     txt.innerText = text;
     
-    dot.className = "status-indicator"; // reset
+    dot.className = "status-dot"; // reset
     if (state === "warning") dot.classList.add("warning");
     if (state === "error") dot.classList.add("error");
 }
@@ -189,14 +201,14 @@ function updateStatusUI(type, text, state) {
 // ---------------------------------------------
 async function fetchAirTraffic() {
     try {
-        updateStatusUI('air', "Fetching...", "warning");
+        updateStatusUI('air', "Fetching data...", "warning");
 
         const url = `https://opensky-network.org/api/states/all?lamin=${SINGAPORE_BOUNDS.lamin}&lomin=${SINGAPORE_BOUNDS.lomin}&lamax=${SINGAPORE_BOUNDS.lamax}&lomax=${SINGAPORE_BOUNDS.lomax}`;
         const response = await fetch(url);
         
         if (!response.ok) {
-            if (response.status === 429) throw new Error("Rate Limited by OpenSky");
-            throw new Error(`HTTP Error ${response.status}`);
+            if (response.status === 429) throw new Error("Rate Limited (429)");
+            throw new Error(`HTTP ${response.status}`);
         }
         
         const data = await response.json();
@@ -224,11 +236,10 @@ async function fetchAirTraffic() {
             });
         }
         
-        updateStatusUI('air', "Connected (Live)", "success");
+        updateStatusUI('air', "Live Connected", "success");
     } catch (error) {
         console.error("OpenSky fetch error:", error);
-        updateStatusUI('air', `Error: ${error.message}`, "error");
-        showToast(`Air Data Error: ${error.message}`, "error");
+        updateStatusUI('air', error.message, "error");
     }
     
     document.getElementById('air-count').innerText = Object.keys(airMarkers).length;
@@ -296,8 +307,13 @@ function connectLiveSeaData(apiKey) {
     aisWebSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
     aisWebSocket.onopen = function() {
-        updateStatusUI('sea', "Connected (Live WS)", "success");
-        showToast("Connected to live AIS Stream!", "success");
+        updateStatusUI('sea', "Live Connected", "success");
+        showToast("Connected to live AIS Stream", "success");
+        
+        // Update button UI
+        const btn = document.getElementById('btn-connect-ais');
+        btn.innerText = "Connected";
+        btn.style.backgroundColor = "var(--accent-green)";
 
         const subscriptionMessage = {
             APIKey: apiKey,
@@ -336,7 +352,8 @@ function connectLiveSeaData(apiKey) {
     aisWebSocket.onerror = function(error) {
         console.error("AISStream WebSocket Error:", error);
         updateStatusUI('sea', "WebSocket Error", "error");
-        showToast("AIS WebSocket Error. Retrying...", "error");
+        document.getElementById('btn-connect-ais').innerText = "Retry";
+        document.getElementById('btn-connect-ais').style.backgroundColor = "var(--accent-red)";
     };
 
     aisWebSocket.onclose = function() {
@@ -354,8 +371,11 @@ document.getElementById('btn-connect-ais').addEventListener('click', () => {
         localStorage.setItem('aisKey', key);
         connectLiveSeaData(key);
     } else {
-        showToast("Please enter an API Key to connect live.", "info");
+        showToast("Please enter an API Key to connect live.", "error");
         startMockSeaData();
+        const btn = document.getElementById('btn-connect-ais');
+        btn.innerText = "Connect";
+        btn.style.backgroundColor = "var(--accent-blue)";
     }
 });
 
@@ -364,7 +384,7 @@ window.onload = () => {
     initMap();
     
     // Welcome Toast
-    showToast("Dashboard initialized.", "info", 2000);
+    showToast("Dashboard system initialized", "info", 3000);
     
     // Start Air Traffic Fetching
     fetchAirTraffic();
