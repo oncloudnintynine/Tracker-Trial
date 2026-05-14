@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sea & Air Tracks Dashboard</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar Controls -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2>Live Tracker</h2>
+                <p>Air & Sea Traffic</p>
+            </div>
 
+            <div class="control-group">
+                <h3>Air Traffic (OpenSky)</h3>
+                <p class="info-text">Live flights via OpenSky Network. Auto-updates every 30s. Rate limited for anonymous users.</p>
+                <label class="switch-label">
+                    <input type="checkbox" id="toggle-air" checked>
+                    <span>Show Air Tracks</span>
+                </label>
+                <div class="status" id="air-status">Status: Connecting...</div>
+                <div class="stats">Active Flights: <span id="air-count">0</span></div>
+            </div>
+
+            <div class="control-group">
+                <h3>Sea Traffic (AISStream)</h3>
+                <p class="info-text">Live vessels require a free key from <em>aisstream.io</em>. Without a key, mock data is displayed to demonstrate UI.</p>
+                
+                <input type="text" id="ais-key" placeholder="Enter AISStream API Key (Optional)">
+                <button id="btn-connect-ais" class="btn">Connect Live Sea Data</button>
+
+                <label class="switch-label mt-10">
+                    <input type="checkbox" id="toggle-sea" checked>
+                    <span>Show Sea Tracks</span>
+                </label>
+                <div class="status" id="sea-status">Status: Using Mock Data</div>
+                <div class="stats">Active Vessels: <span id="sea-count">0</span></div>
+            </div>
+
+            <div class="system-limits">
+                <h4>System Limitations</h4>
+                <ul>
+                    <li><strong>GitHub Pages:</strong> Requires HTTPS/WSS APIs to avoid Mixed Content errors.</li>
+                    <li><strong>OpenSky:</strong> Bounding box limited to Singapore region to prevent 429 Too Many Requests.</li>
+                    <li><strong>AIS:</strong> Real-time global AIS is strictly commercialized. Websocket used here.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Map Container -->
+        <main id="map-container">
+            <div id="map"></div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+</html>
